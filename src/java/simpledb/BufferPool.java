@@ -83,6 +83,8 @@ public class BufferPool {
         DbFile table = catalog.getDatabaseFile(pid.getTableId());
         Page myPage = table.readPage(pid);
 
+        pages.put(pid, myPage);
+
         return myPage; 
     }
 
