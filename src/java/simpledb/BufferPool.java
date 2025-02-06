@@ -20,6 +20,8 @@ public class BufferPool {
     private static final int PAGE_SIZE = 4096;
 
     private static int pageSize = PAGE_SIZE;
+    private ConcurrentHashMap<PageId, Page> pages;
+    private final int numPages;
 
     /** Default number of pages passed to the constructor. This is used by
     other classes. BufferPool should use the numPages argument to the
@@ -36,7 +38,8 @@ public class BufferPool {
      * @param numPages maximum number of pages in this buffer pool.
      */
     public BufferPool(int numPages) {
-        // TODO: some code goes here
+        this.numPages = numPages;
+        this.pages = new ConcurrentHashMap<>();
     }
 
     public static int getPageSize() {
@@ -73,9 +76,16 @@ public class BufferPool {
      */
     public  Page getPage(TransactionId tid, PageId pid, Permissions perm)
             throws TransactionAbortedException, DbException {
-        // TODO: some code goes here
-        return null;
+        if (pages.containsKey(pid)){
+            return pages.get(pid);
+        }
+        Catalog catalog = Database.getCatalog();
+        DbFile table = catalog.getDatabaseFile(pid.getTableId());
+        Page myPage = table.readPage(pid);
+
+        return myPage; 
     }
+
 
     /**
      * Releases the lock on a page.

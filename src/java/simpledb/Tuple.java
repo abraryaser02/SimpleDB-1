@@ -1,8 +1,11 @@
 package simpledb;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+
+import simpledb.TupleDesc.TDItem;
 
 /**
  * Tuple maintains information about the contents of a tuple. Tuples have a
@@ -12,6 +15,9 @@ import java.util.Iterator;
 public class Tuple implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    private ArrayList<Field> fields;
+    private TupleDesc tupleDesc;
+    private RecordId recordId;
 
     /**
      * Create a new tuple with the specified schema (type).
@@ -20,16 +26,20 @@ public class Tuple implements Serializable {
      *            the schema of this tuple. It must be a valid TupleDesc
      *            instance with at least one field.
      */
+
     public Tuple(TupleDesc td) {
-        // TODO: some code goes here
+        this.tupleDesc = td;
+        fields = new ArrayList<>(td.numFields());
+        for(int i=0; i < td.numFields(); i++){
+            fields.add(null);
+        }
     }
 
     /**
      * @return The TupleDesc representing the schema of this tuple.
      */
     public TupleDesc getTupleDesc() {
-        // TODO: some code goes here
-        return null;
+        return this.tupleDesc;
     }
 
     /**
@@ -38,7 +48,7 @@ public class Tuple implements Serializable {
      */
     public RecordId getRecordId() {
         // TODO: some code goes here
-        return null;
+        return this.recordId;
     }
 
     /**
@@ -49,6 +59,7 @@ public class Tuple implements Serializable {
      */
     public void setRecordId(RecordId rid) {
         // TODO: some code goes here
+        this.recordId = rid;
     }
 
     /**
@@ -61,6 +72,10 @@ public class Tuple implements Serializable {
      */
     public void setField(int i, Field f) {
         // TODO: some code goes here
+        if(i < 0 || i >= tupleDesc.numFields()) {
+            throw new IllegalArgumentException("Invalid field index");
+        }
+        fields.set(i, f);
     }
 
     /**
@@ -71,7 +86,10 @@ public class Tuple implements Serializable {
      */
     public Field getField(int i) {
         // TODO: some code goes here
-        return null;
+        if(i < 0 || i >= tupleDesc.numFields()) {
+            throw new IllegalArgumentException("Invalid field index");
+        }
+        return fields.get(i);
     }
 
     /**
@@ -84,7 +102,12 @@ public class Tuple implements Serializable {
      */
     public String toString() {
         // TODO: some code goes here
-        throw new UnsupportedOperationException("Implement this");
+        StringBuilder tuple = new StringBuilder();
+        for(int i=0; i < tupleDesc.numFields(); i ++){
+            tuple.append(fields.get(i).toString()).append("\t");
+        }
+        tuple.append("\n");
+        return tuple.toString();
     }
 
     /**
@@ -94,7 +117,7 @@ public class Tuple implements Serializable {
     public Iterator<Field> fields()
     {
         // TODO: some code goes here
-        return null;
+        return this.fields.iterator();
     }
 
     /**
@@ -103,6 +126,6 @@ public class Tuple implements Serializable {
      * */
     public void resetTupleDesc(TupleDesc td)
     {
-        // TODO: some code goes here
+        this.tupleDesc = td;
     }
 }
