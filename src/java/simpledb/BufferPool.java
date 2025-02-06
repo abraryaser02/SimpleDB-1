@@ -18,6 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BufferPool {
     /** Bytes per page, including header. */
     private static final int PAGE_SIZE = 4096;
+    private final ConcurrentHashMap<PageId, Page> cache;
+    private final int numPages;
 
     private static int pageSize = PAGE_SIZE;
 
@@ -36,7 +38,9 @@ public class BufferPool {
      * @param numPages maximum number of pages in this buffer pool.
      */
     public BufferPool(int numPages) {
-        // TODO: some code goes here
+        this.numPages = numPages;
+        this.cache = new ConcurrentHashMap<>(numPages);
+
     }
 
     public static int getPageSize() {
@@ -73,8 +77,24 @@ public class BufferPool {
      */
     public  Page getPage(TransactionId tid, PageId pid, Permissions perm)
             throws TransactionAbortedException, DbException {
-        // TODO: some code goes here
-        return null;
+        // check the cache
+        if (cache.contains(pid)) {
+            return cache.get(pid);
+        }
+
+        if (cache.size() >= numPages) {
+            throw new DbException("No eviction policy yet");
+
+        }
+        // add to cache if it doesn't exist
+        int tableId = pid.getTableId();
+        DbFile file = Database.getCatalog().getDatabaseFile(tableId);
+        Page page = file.readPage(pid);
+
+        cache.put(pid, page);
+        
+        return page;
+
     }
 
     /**
