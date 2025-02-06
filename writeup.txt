@@ -1,0 +1,6 @@
+Angie and Abrar
+
+We decided to use ArrayLists for the TupleDesc and Tuple classes, in order to provide easy insertion and
+and deletion. Our BufferPool class is implemented using a Concurrent Hash Map, which allows for thread safety
+compared to a normal hash map. When removing and adding to the bufferpool, this will guarantee that the number of
+records stored in it will always be an accurate number, and the hashmasp allows for constant lookup. 
