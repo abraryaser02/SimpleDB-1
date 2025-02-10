@@ -87,8 +87,7 @@ public class HeapFile implements DbFile {
             raf.readFully(bytes);
             raf.close();
 
-            HeapPageId pageId = new HeapPageId(pid.getTableId(), pid.getPageNumber());
-            HeapPage page = new HeapPage(pageId, bytes);
+            HeapPage page = new HeapPage((HeapPageId) pid, bytes);
 
             return page;
 
@@ -131,8 +130,64 @@ public class HeapFile implements DbFile {
 
     // see DbFile.java for javadocs
     public DbFileIterator iterator(TransactionId tid) {
+        return new DbFileIterator() {
+            private int curr = 0;
+            private boolean isOpen = false;
+            private Iterator<Tuple> tupleIterator;
+
+            @Override
+            public void open() throws DbException, TransactionAbortedException {
+                curr = 0;
+                isOpen = true;
+                
+                while (curr < numPages()) {
+                    PageId pid = new HeapPageId(getId(), curr);
+                    HeapPage page = (HeapPage) Database.getBufferPool().getPage(tid, pid, Permissions.READ_ONLY);
+                    tupleIterator = page.iterator();
+    
+                    if (tupleIterator.hasNext()) return; 
+                    curr++; 
+                }
+            }
+            @Override
+            public boolean hasNext() throws DbException, TransactionAbortedException {
+                if (!isOpen) throw new IllegalStateException();
+
+                while (!tupleIterator.hasNext() && curr < numPages()) {
+                    curr++;
+                    if (curr >= numPages()) { 
+                        return false;
+                    }
+                    PageId pid = new HeapPageId(getId(), curr);
+                    HeapPage page = (HeapPage) Database.getBufferPool().getPage(tid, pid, Permissions.READ_ONLY);
+                    tupleIterator = page.iterator();  
+                }
+                return tupleIterator.hasNext();
+            }
+            @Override
+            public Tuple next() throws DbException, TransactionAbortedException, NoSuchElementException {
+                if (!isOpen) throw new IllegalStateException();
+                if (!hasNext()) throw new NoSuchElementException();
+                return tupleIterator.next();
+            }
+            @Override
+            public void rewind() throws DbException, TransactionAbortedException {
+                open();
+            }
+            
+            @Override
+            public void close() {
+                isOpen = false;
+                tupleIterator = null;
+                curr = 0;
+            }
+
         
-        return null;
+
+
+            
+        };
+        
     }
 
 }
