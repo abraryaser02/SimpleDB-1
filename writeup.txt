@@ -1,6 +1,16 @@
 Angie and Abrar
 
 We decided to use ArrayLists for the TupleDesc and Tuple classes, in order to provide easy insertion and
-and deletion. Our BufferPool class is implemented using a Concurrent Hash Map, which allows for thread safety
+and deletion. 
+
+Our BufferPool class is implemented using a Concurrent Hash Map, which allows for thread safety
 compared to a normal hash map. When removing and adding to the bufferpool, this will guarantee that the number of
-records stored in it will always be an accurate number, and the hashmasp allows for constant lookup. 
+records stored in it will always be an accurate number, and the hashmap allows for constant lookup.
+
+For several of the unique names of id, such as the getId() function in HeapPageId, we used the built in function
+.getHashCode() for a simple way to generate unique ids and hashes. 
+
+We spent around 8 hours doing the lab. The most confusing part of the lab was implementing the iterator for the
+HeapFile, but most of the functions were relatively straigthforward. When getting starting, it also took a little
+bit of time to  fully understanding all of the classes and the way they interacted with each other, but working
+through each part made it more clear. 
