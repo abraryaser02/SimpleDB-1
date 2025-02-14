@@ -77,23 +77,41 @@ public class BufferPool {
      */
     public  Page getPage(TransactionId tid, PageId pid, Permissions perm)
             throws TransactionAbortedException, DbException {
-        // check the cache
-        if (cache.contains(pid)) {
-            return cache.get(pid);
-        }
+        // // check the cache
+        // if (cache.contains(pid)) {
+        //     return cache.get(pid);
+        // }
 
-        if (cache.size() >= numPages) {
-            throw new DbException("No eviction policy yet");
+        // if (cache.size() >= numPages) {
+        //     throw new DbException("No eviction policy yet");
 
-        }
-        // add to cache if it doesn't exist
-        int tableId = pid.getTableId();
-        DbFile file = Database.getCatalog().getDatabaseFile(tableId);
-        Page page = file.readPage(pid);
+        // }
+        // // add to cache if it doesn't exist
+        // int tableId = pid.getTableId();
+        // DbFile file = Database.getCatalog().getDatabaseFile(tableId);
+        // Page page = file.readPage(pid);
 
-        cache.put(pid, page);
+        // cache.put(pid, page);
         
-        return page;
+        // return page;
+
+        Page cachedPage = cache.get(pid);
+        if (cachedPage != null) {
+            return cachedPage;
+        }
+
+        // If we're at capacity, throw an exception
+        if (cache.size() >= numPages) {
+            throw new DbException("Buffer pool is full and eviction is not implemented");
+        }
+
+        // Read the page from disk
+        DbFile dbFile = Database.getCatalog().getDatabaseFile(pid.getTableId());
+        Page newPage = dbFile.readPage(pid);
+        
+        // Add to cache and return
+        cache.put(pid, newPage);
+        return newPage;
 
     }
 
