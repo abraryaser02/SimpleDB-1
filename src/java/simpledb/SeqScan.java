@@ -10,6 +10,11 @@ import java.util.*;
 public class SeqScan implements DbIterator {
 
     private static final long serialVersionUID = 1L;
+    private TransactionId tid;
+    private int tableid;
+    private String tableAlias;
+    private DbFileIterator iterator;
+
 
     /**
      * Creates a sequential scan over the specified table as a part of the
@@ -28,7 +33,10 @@ public class SeqScan implements DbIterator {
      *            tableAlias.null, or null.null).
      */
     public SeqScan(TransactionId tid, int tableid, String tableAlias) {
-        // TODO: some code goes here
+        this.tid = tid;
+        this.tableid = tableid;
+        this.tableAlias = tableAlias;
+        this.iterator = Database.getCatalog().getDatabaseFile(tableid).iterator(tid);
     }
 
     /**
@@ -37,7 +45,7 @@ public class SeqScan implements DbIterator {
      *       be the actual name of the table in the catalog of the database
      * */
     public String getTableName() {
-        return null;
+        return Database.getCatalog().getTableName(tableid);
     }
 
     /**
@@ -45,8 +53,7 @@ public class SeqScan implements DbIterator {
      * */
     public String getAlias()
     {
-        // TODO: some code goes here
-        return null;
+        return tableAlias;
     }
 
     /**
@@ -62,7 +69,9 @@ public class SeqScan implements DbIterator {
      *            tableAlias.null, or null.null).
      */
     public void reset(int tableid, String tableAlias) {
-        // TODO: some code goes here
+        this.tableid = tableid;
+        this.tableAlias = tableAlias;
+        this.iterator = Database.getCatalog().getDatabaseFile(tableid).iterator(tid);
     }
 
     public SeqScan(TransactionId tid, int tableid) {
@@ -70,7 +79,7 @@ public class SeqScan implements DbIterator {
     }
 
     public void open() throws DbException, TransactionAbortedException {
-        // TODO: some code goes here
+        iterator.open();
     }
 
     /**
@@ -89,22 +98,22 @@ public class SeqScan implements DbIterator {
     }
 
     public boolean hasNext() throws TransactionAbortedException, DbException {
-        // TODO: some code goes here
+        iterator.hasNext();
         return false;
     }
 
     public Tuple next() throws NoSuchElementException,
     TransactionAbortedException, DbException {
-        // TODO: some code goes here
+        iterator.next();
         return null;
     }
 
     public void close() {
-        // TODO: some code goes here
+        iterator.close();
     }
 
     public void rewind() throws DbException, NoSuchElementException,
     TransactionAbortedException {
-        // TODO: some code goes here
+        iterator.rewind();
     }
 }
